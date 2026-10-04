@@ -1,11 +1,11 @@
 #include <linux/fs.h>
 #include <linux/init.h>
-#include <linux/kernel.h> /* min */
+#include <linux/kernel.h> // min
 #include <linux/mm.h>
 #include <linux/module.h>
-#include <linux/slab.h>
+#include <linux/slab.h>   // kmalloc, kfree
+#include <asm/io.h>       // virt_to_phys
 
-#define len 1024
 char *c;
 
 static int mmap(struct file *filp, struct vm_area_struct *vma)
@@ -13,11 +13,14 @@ static int mmap(struct file *filp, struct vm_area_struct *vma)
 // https://static.lwn.net/images/pdf/LDD3/ch15.pdf page 426
 // https://linux-kernel-labs.github.io/refs/heads/master/labs/memory_mapping.html
 // https://lore.kernel.org/all/062c5218-3370-905a-d113-4d9526d13cd1@microchip.com/T/
-// unsigned long pfn = virt_to_phys((void *)c)>>PAGE_SHIFT;
+#ifdef __ARMEL__
   unsigned long pfn = __pa_symbol((void *)c)>>PAGE_SHIFT;
-  int ret=remap_pfn_range(vma, vma->vm_start, pfn, len, vma->vm_page_prot);
+#else
+  unsigned long pfn = virt_to_phys(c)>>PAGE_SHIFT;
+#endif
+  int ret=remap_pfn_range(vma, vma->vm_start, pfn, PAGE_SIZE, vma->vm_page_prot);
   printk(KERN_INFO "mmap %d\n",ret);
-  return 0;
+  return ret;
 }
 
 static int open(struct inode *inode, struct file *filp)
