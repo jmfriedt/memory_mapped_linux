@@ -1,11 +1,11 @@
-PATH:=$(PATH):../buildroot-2024.05.2_redpit/output/host/usr/bin/
+PATH:=$(PATH):PATH=$PATH:$(HOME)/buildroot-2026.08-rc1/output/host/usr/bin
 
 obj-m += mymmap.o
 
 all:
 	echo $(PATH)
 	make ARCH=arm CROSS_COMPILE=arm-buildroot-linux-gnueabihf- -C \
-../buildroot-2024.05.2_redpit/output/build/linux-xilinx-v2024.1/ M=$(PWD) modules
+$(HOME)/buildroot-2026.08-rc1/output/build/linux-custom M=$(PWD) modules
 
 clean:
 	rm *.o *.ko *.mod.c .*.cmd
